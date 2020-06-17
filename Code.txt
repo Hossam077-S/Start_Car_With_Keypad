@@ -1,0 +1,91 @@
+#include <Keypad.h>
+int Contact = 13;
+int Start = 12;
+boolean Con = false;
+
+const byte ROWS = 4; //four rows
+const byte COLS = 3; //three columns
+char keys[ROWS][COLS] = {
+  {'1', '2', '3'},
+  {'4', '5', '6'},
+  {'7', '8', '9'},
+  {'*', '0', '#'}
+};
+
+byte rowPins[ROWS] = {5, 4, 3, 2}; //connect to the row pinouts of the keypad
+byte colPins[COLS] = {8, 7, 6}; //connect to the column pinouts of the keypad
+
+Keypad keypad = Keypad( makeKeymap(keys), rowPins, colPins, ROWS, COLS );
+
+char* password = "262525331";
+int position = 0;
+int count = 0;
+char* pass = "27910";
+int p = 0;
+
+void setup() {
+  Serial.begin(9600);
+  pinMode(Contact, OUTPUT);
+  pinMode(Start, OUTPUT);
+  
+  digitalWrite(Contact, HIGH);//By Default realy 1 is off
+  digitalWrite(Start, HIGH);//By Default realy 2 is off
+  
+  keypad.addEventListener(keypadEvent); // Add an event listener for this keypad
+
+}
+
+void loop() {
+  char key = keypad.getKey();
+ 
+  delay(20);
+  Serial.print(key);
+  if (key == '#')
+  {
+    position = 0;
+    p = 0;
+    ContactOn(true);
+  }
+
+  if (key == password[position])
+  {
+    position ++;
+  }
+  if (key == pass[p]) {
+    p++;
+  }
+
+  if (position == 9 || p == 5)
+  {
+
+    ContactOn(false);
+  }
+
+  delay(20);
+}
+
+void ContactOn(int c)
+{
+  if (c)
+  {
+    digitalWrite(Contact, HIGH);
+    Serial.println("Contact OFF");
+    Con = false;
+  }
+  else
+  {
+    digitalWrite(Contact, LOW);
+    Serial.println("Contact ON");
+    Con = true;
+  }
+}
+void keypadEvent(KeypadEvent key) {
+  if (keypad.getState() == HOLD && Con == true) {
+    if (key == '*' ) {
+      digitalWrite(Start, LOW);
+      Serial.println("Start Engin");
+    }
+  }
+  else
+    digitalWrite(Start, HIGH);
+}
